@@ -1,12 +1,16 @@
 let express = require('express')
 let mongoose = require('mongoose')
 const programming = require('./programming')
+let cors = require('cors')
+
 
 //create express app
 let app = express()
 //configure express app to encode/decode
 //JSON
 app.use(express.json())
+//consfigure cors to allow ALL/selected incoming request
+app.use(cors())
 
 //connect to mongodb database
 let dbstring = "mongodb+srv://mongodbuser:mongodbpassword@cluster0.nezoluq.mongodb.net/youtubedb"
@@ -33,6 +37,40 @@ app.get("/1.0/youtube/all", (request, response)=>{
                     response.json(error)
                 })
 })
+
+//add new video document to the database
+//POST http://localhost:1234/1.0/youtube/add
+app.post("/1.0/youtube/add",(request, response)=>{
+    console.log("POST request for //1.0/youtube/add")
+    //extract request body
+    console.log(request.body)
+    console.log(request.body.vid)
+    console.log(request.body.likes)
+    console.log(request.body.dislikes)
+    console.log(request.body.title)
+    //create instance of model -> programming
+    let programmingNew = new programming({
+        videoid:request.body.videoid,
+        title:request.body.title,
+        id:request.body.id
+    })
+    //save the model instance in database
+    programmingNew.save()
+                .then((data)=>{
+                    response.send({
+                        "status":"success",
+                        "saved":data
+                    })
+                })
+                .catch((error)=>{
+                    response.send(error)
+                })
+    
+
+
+
+})
+
 
 //GET http://localhost:1234/
 app.get("/", (request, response)=>{
